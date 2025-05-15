@@ -1,154 +1,211 @@
-# User Service - E-Commerce Mikroservice
+# E-Ticaret Mikroservis Projesi
 
-Bu proje, e-commerce uygulamasının kullanıcı yönetiminden sorumlu mikroservisidir. Kullanıcı kaydı, kimlik doğrulaması, profil yönetimi, adres ve iletişim bilgilerini yönetir.
+Bu proje, kullanıcı yönetimi ve ürün yönetimi için ayrı servisler içeren mikroservis tabanlı bir e-ticaret uygulamasıdır.
 
-## 🚀 Teknolojiler
+## Proje Yapısı
 
-- **Backend Framework**: FastAPI
-- **Database**: PostgreSQL
-- **ORM**: SQLAlchemy
-- **Authentication**: JWT (JSON Web Tokens)
-- **Password Hashing**: Bcrypt
-- **Validation**: Pydantic
-- **Testing**: Pytest
-- **Database Migrations**: Alembic
-
-## 📋 Ön Gereksinimler
-
-- Python 3.8+
-- PostgreSQL
-- pip
-
-## 🔧 Kurulum ve Çalıştırma
-
-### 1. Projeyi Klonlayın
-
-```bash
-git clone <repository-url>
-cd user_service
+```
+ecommerce/
+├── docker-compose.yml
+├── user_service/
+│   ├── app/
+│   │   ├── routers/
+│   │   │   ├── auth.py
+│   │   │   ├── users.py
+│   │   │   └── roles.py
+│   │   ├── database.py
+│   │   ├── dependencies.py
+│   │   ├── main.py
+│   │   ├── models.py
+│   │   ├── schemas.py
+│   │   └── auth.py
+│   ├── tests/
+│   ├── Dockerfile
+│   └── requirements.txt
+├── product_service/
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── v1/
+│   │   │       ├── endpoints/
+│   │   │       │   ├── products.py
+│   │   │       │   ├── cart.py
+│   │   │       │   └── orders.py
+│   │   │       └── api.py
+│   │   ├── core/
+│   │   ├── models/
+│   │   ├── schemas/
+│   │   └── main.py
+│   ├── tests/
+│   ├── Dockerfile
+│   └── requirements.txt
+└── frontend/
+    ├── src/
+    ├── public/
+    ├── package.json
+    └── Dockerfile
 ```
 
-### 2. Virtual Environment Oluşturun
+## Kullanılan Teknolojiler
 
-```bash
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
-```
+### Kullanıcı Servisi (User Service)
+- **FastAPI**: Modern, hızlı API geliştirme çerçevesi
+- **SQLAlchemy**: SQL ORM kütüphanesi
+- **PostgreSQL**: İlişkisel veritabanı
+- **Pydantic**: Veri doğrulama ve ayarlar yönetimi
+- **Uvicorn**: ASGI web sunucusu
+- **JWT**: Kimlik doğrulama için JSON Web Token
+- **Docker**: Konteynerizasyon
 
-### 3. Bağımlılıkları Yükleyin
+### Ürün Servisi (Product Service)
+- **FastAPI**: API geliştirme çerçevesi
+- **SQLAlchemy**: ORM kütüphanesi
+- **SQLite**: Yerel veritabanı
+- **Pydantic**: Veri doğrulama
+- **Docker**: Konteynerizasyon
 
-```bash
-pip install -r requirements.txt
-```
+### Ön Yüz (Frontend)
+- **React**: Kullanıcı arayüzü kütüphanesi
+- **React Router**: Sayfa yönlendirme
+- **Docker**: Konteynerizasyon
 
-### 4. Ortam Değişkenlerini Ayarlayın
+## Kurulum ve Çalıştırma Adımları
 
-`.env` dosyası oluşturun:
+### Önkoşullar
+- Docker ve Docker Compose yüklü olmalı
+- Git
 
-```env
-# Database
-POSTGRES_SERVER=localhost
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=12345
-POSTGRES_DB=user_service
-POSTGRES_PORT=5432
+### Adımlar
 
-# JWT
-JWT_SECRET_KEY=your-secret-key-here
-JWT_ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-REFRESH_TOKEN_EXPIRE_DAYS=7
+1. Projeyi klonlayın:
+   ```bash
+   git clone <repo-url>
+   cd ecommerce
+   ```
 
-# Application
-PROJECT_NAME="User Service"
-VERSION="1.0.0"
-API_V1_STR="/api/v1"
-```
+2. Docker Compose ile tüm servisleri başlatın:
+   ```bash
+   docker-compose up -d
+   ```
 
-### 5. Veritabanını Oluşturun
+3. Servisler aşağıdaki adreslerde çalışacaktır:
+   - Frontend: http://localhost:3000
+   - Kullanıcı Servisi API: http://localhost:8007
+   - Ürün Servisi API: http://localhost:8001/api/v1
+   - Kullanıcı Servisi API Belgeleri: http://localhost:8007/docs
+   - Ürün Servisi API Belgeleri: http://localhost:8001/docs
 
-```bash
-# PostgreSQL'de veritabanı oluştur
-createdb user_service
+### Geliştirme Ortamı Kurulumu
 
-# Migration'ları çalıştır
-alembic upgrade head
-```
+Eğer servisleri ayrı ayrı geliştirmek isterseniz:
 
-### 6. Uygulamayı Başlatın
+1. PostgreSQL veritabanını başlatın:
+   ```bash
+   docker-compose up -d db
+   ```
 
-```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-```
+2. Kullanıcı Servisi için sanal ortam kurun:
+   ```bash
+   cd user_service
+   python -m venv venv
+   # Windows
+   venv\Scripts\activate
+   # Linux/macOS
+   source venv/bin/activate
+   pip install -r requirements.txt
+   ```
 
-Uygulama http://localhost:8000 adresinde çalışmaya başlar.
+3. Kullanıcı Servisini çalıştırın:
+   ```bash
+   uvicorn app.main:app --reload --port 8007
+   ```
 
-## 📚 API Endpoints
+4. Ürün Servisi için sanal ortam kurun:
+   ```bash
+   cd product_service
+   python -m venv venv
+   # Windows
+   venv\Scripts\activate
+   # Linux/macOS
+   source venv/bin/activate
+   pip install -r requirements.txt
+   ```
 
-### Auth Endpoints
+5. Ürün Servisini çalıştırın:
+   ```bash
+   uvicorn app.main:app --reload --port 8001
+   ```
 
-- `POST /api/v1/auth/register` - Kullanıcı kaydı
-- `POST /api/v1/auth/login` - Kullanıcı girişi
-- `POST /api/v1/auth/refresh` - Token yenileme
+6. Frontend geliştirme sunucusunu başlatın:
+   ```bash
+   cd frontend
+   npm install
+   npm start
+   ```
 
-### User Endpoints
+## API Endpoint Listesi
 
-- `GET /api/v1/users/me` - Mevcut kullanıcı bilgilerini getir
-- `PUT /api/v1/users/me` - Kullanıcı bilgilerini güncelle
-- `GET /api/v1/users/{user_id}` - Belirli kullanıcıyı getir (Admin)
-- `GET /api/v1/users/` - Tüm kullanıcıları listele (Admin)
-- `PUT /api/v1/users/{user_id}` - Kullanıcı güncelle (Admin)
-- `DELETE /api/v1/users/{user_id}` - Kullanıcı sil (Admin)
+### Kullanıcı Servisi (User Service) Endpoints
 
-### Address Endpoints
+#### Kimlik Doğrulama (Authentication)
+- `POST /login` - Kullanıcı girişi, JWT token döndürür
+- `POST /logout` - Kullanıcının token'ını geçersiz kılar
+- `GET /check-login` - Token'ın geçerli olup olmadığını kontrol eder
+- `GET /user-info` - Giriş yapmış kullanıcının bilgilerini getirir
+- `GET /protected-route` - Korumalı bir rota örneği
+- `GET /admin-dashboard` - Sadece admin erişimli dashboard
 
-- `POST /api/v1/address/` - Adres oluştur
-- `GET /api/v1/address/` - Kullanıcının adreslerini listele
-- `GET /api/v1/address/{address_id}` - Belirli adres getir
-- `PUT /api/v1/address/{address_id}` - Adres güncelle
-- `DELETE /api/v1/address/{address_id}` - Adres sil
-- `GET /api/v1/address/user/me` - Mevcut kullanıcının adresleri
-- `GET /api/v1/address/user/{user_id}` - Kullanıcının adresleri (Admin)
+#### Kullanıcı Yönetimi (User Management)
+- `POST /users/` - Yeni bir kullanıcı oluşturur
+- `GET /users/me` - Mevcut kullanıcı detaylarını getirir
+- `GET /users/` - Tüm kullanıcıları listeler (Sadece Admin)
+- `GET /users/{user_id}` - Belirli bir kullanıcının detaylarını getirir (Sadece Admin)
+- `PUT /users/{user_id}` - Kullanıcı detaylarını günceller (Sadece Admin)
+- `DELETE /users/{user_id}` - Bir kullanıcıyı siler (Sadece Admin)
+- `PUT /users/me/password` - Kendi şifresini değiştirir
+- `PUT /users/{user_id}/password/reset` - Kullanıcının şifresini sıfırlar (Sadece Admin)
+- `PUT /users/{user_id}/status` - Kullanıcının aktif durumunu günceller (Sadece Admin)
+- `PUT /users/me/deactivate` - Kendi hesabını devre dışı bırakır
 
-### Contact Endpoints
+#### Adres Yönetimi (Address Management)
+- `POST /users/me/addresses` - Yeni bir adres ekler
+- `PUT /users/me/addresses/{address_id}` - Bir adresi günceller
+- `DELETE /users/me/addresses/{address_id}` - Bir adresi siler
 
-- `POST /api/v1/contact/` - İletişim bilgisi oluştur
-- `GET /api/v1/contact/` - Kullanıcının iletişim bilgilerini listele
-- `GET /api/v1/contact/{contact_id}` - Belirli iletişim bilgisi getir
-- `PUT /api/v1/contact/{contact_id}` - İletişim bilgisi güncelle
-- `DELETE /api/v1/contact/{contact_id}` - İletişim bilgisi sil
-- `GET /api/v1/contact/user/me` - Mevcut kullanıcının iletişim bilgileri
-- `GET /api/v1/contact/user/{user_id}` - Kullanıcının iletişim bilgileri (Admin)
+#### İletişim Yönetimi (Contact Management)
+- `POST /users/me/contacts` - Yeni bir iletişim bilgisi ekler
 
-## 👤 Varsayılan Admin Kullanıcı
+#### Rol Yönetimi (Role Management)
+- `POST /roles` - Yeni bir rol oluşturur (Sadece Admin)
+- `PUT /roles/{role_id}` - Bir rolü günceller (Sadece Admin)
+- `POST /roles/{role_id}/permissions` - Bir role yetki ekler (Sadece Admin)
 
-İlk çalıştırmada varsayılan admin kullanıcısı otomatik olarak oluşturulur:
+### Ürün Servisi (Product Service) Endpoints
 
-- **Email**: admin@example.com
-- **Password**: admin123
-- **Username**: admin
-- **Role**: Superuser
+#### Ürünler (Products)
+- `GET /api/v1/products` - Tüm ürünleri listeler
+- `GET /api/v1/products/{product_id}` - Belirli bir ürünün detaylarını getirir
+- `POST /api/v1/products` - Yeni bir ürün oluşturur (Admin)
+- `PUT /api/v1/products/{product_id}` - Bir ürünü günceller (Admin)
+- `DELETE /api/v1/products/{product_id}` - Bir ürünü siler (Admin)
 
-## 📊 API Dokümantasyonu
+#### Sepet (Cart)
+- `GET /api/v1/cart` - Kullanıcının sepetini getirir
+- `POST /api/v1/cart/items` - Sepete ürün ekler
+- `PUT /api/v1/cart/items/{item_id}` - Sepetteki bir ürünün miktarını günceller
+- `DELETE /api/v1/cart/items/{item_id}` - Sepetten bir ürünü kaldırır
 
-Uygulama çalışırken aşağıdaki URL'lerden interaktif API dokümantasyonuna erişebilirsiniz:
+#### Siparişler (Orders)
+- `GET /api/v1/orders` - Kullanıcının tüm siparişlerini listeler
+- `GET /api/v1/orders/{order_id}` - Belirli bir siparişin detaylarını getirir
+- `POST /api/v1/orders` - Yeni bir sipariş oluşturur
+- `PUT /api/v1/orders/{order_id}/status` - Bir siparişin durumunu günceller (Admin)
 
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
+## Varsayılan Admin Kullanıcı Bilgileri
 
-## 🧪 Testler
+Sistem ilk başlatıldığında aşağıdaki varsayılan admin kullanıcısı oluşturulur:
 
-Testleri çalıştırmak için:
+- **Kullanıcı Adı**: admin
+- **Şifre**: admin123
+- **Rol**: Admin
 
-```bash
-# Tüm testleri çalıştır
-pytest
-
-# Coverage raporu ile
-pytest --cov=app
-
-# Belirli test dosyasını çalıştır
-pytest tests/test_user.py
-```
-
+**Önemli Not**: Güvenlik nedeniyle ilk giriş sonrası admin şifresini değiştirmeniz önerilir. 
