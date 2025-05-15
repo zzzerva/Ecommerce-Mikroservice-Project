@@ -1,3 +1,0 @@
-"""
-Data access layer module
-""" 
